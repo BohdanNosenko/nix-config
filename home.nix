@@ -9,8 +9,8 @@
   # This value determines the Home Manager release that your configuration is
   # compatible with. It prevents Home Manager from breaking your setup if a 
   # future release changes default configuration behaviors. 
-  # DO NOT change this value during system updates; keep it locked to 24.11.
-  home.stateVersion = "24.11"; 
+  # Set to "26.05" as this matches your active installation defaults.
+  home.stateVersion = "26.05"; 
 
   # Let Home Manager install and manage itself
   programs.home-manager.enable = true;
@@ -18,8 +18,12 @@
   # --- DECLARATIVE GIT CONFIGURATION ---
   programs.git = {
     enable = true;
-    userName = "BohdanNosenko";
-    userEmail = "nosenko.bog@gmail.com";
+    settings = {
+      user = {
+        name = "BohdanNosenko";
+        email = "nosenko.bog@gmail.com";
+      };
+    };
   };
 
   # --- GLOBAL USER PACKAGES ---
@@ -33,6 +37,7 @@
     pkgs.ripgrep
     pkgs.starship
     pkgs.topgrade
+    pkgs.podman-compose
 
     # Custom Google Antigravity CLI (fetched dynamically from inputs)
     inputs.antigravity-nix.packages.x86_64-linux.google-antigravity-cli
