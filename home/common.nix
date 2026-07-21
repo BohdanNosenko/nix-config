@@ -25,6 +25,9 @@
     };
   };
 
+  # --- DOTFILES LINKING ---
+  home.file.".tmux.conf".source = ../config/common/tmux/tmux.conf;
+
   # --- SHARED USER PACKAGES ---
   home.packages = [
     pkgs.git
