@@ -92,4 +92,15 @@ sudo rm -rf /root/.cache/nix "$HOME/.cache/nix" /nix/var/nix/binary-cache-v* 2>/
 echo "[+] Building and activating Home Manager WSL profile (#wsl)..."
 nix run --fallback --option max-substitution-jobs 2 github:nix-community/home-manager -- switch --flake "$REPO_DIR#wsl"
 
-echo "[+] WSL Bootstrap complete! Run 'exec fish' to enter your shell."
+# 11. Register Fish in /etc/shells and set as default login shell
+if command -v fish >/dev/null 2>&1; then
+    FISH_BIN=$(command -v fish)
+    echo "[+] Registering Fish in /etc/shells and setting default login shell..."
+    if ! grep -q "$FISH_BIN" /etc/shells 2>/dev/null; then
+        echo "$FISH_BIN" | sudo tee -a /etc/shells >/dev/null
+        realpath "$FISH_BIN" 2>/dev/null | sudo tee -a /etc/shells >/dev/null || true
+    fi
+    sudo chsh -s "$FISH_BIN" "$CURRENT_USER" || true
+fi
+
+echo "[+] WSL Bootstrap complete! Restart WSL (wsl.exe --shutdown in PowerShell) to activate your crimson-wsl hostname and Fish shell."
