@@ -21,7 +21,11 @@ set -euo pipefail
 
 echo "[+] Starting Automated WSL Nix & Home Manager Bootstrap..."
 
-# 1. Disable HTTP/2 in Nix daemon to prevent SSL socket drops on WSL
+# 1. Configure system curl to always use HTTP/1.1 on WSL to prevent SSL socket drops
+echo "http1.1" | sudo tee /root/.curlrc >/dev/null
+echo "http1.1" | tee ~/.curlrc >/dev/null
+
+# 2. Disable HTTP/2 in Nix daemon to prevent SSL socket drops on WSL
 echo "[+] Configuring /etc/nix/nix.custom.conf for WSL stability..."
 sudo mkdir -p /etc/nix
 if ! grep -q "http2 = false" /etc/nix/nix.custom.conf 2>/dev/null; then
@@ -34,17 +38,17 @@ if ! grep -q "trusted-users" /etc/nix/nix.custom.conf 2>/dev/null; then
     echo "trusted-users = root $CURRENT_USER" | sudo tee -a /etc/nix/nix.custom.conf >/dev/null
 fi
 
-# 2. Fix WSL2 MTU network packet drops if eth0 exists
+# 3. Fix WSL2 MTU network packet drops if eth0 exists
 if ip link show eth0 >/dev/null 2>&1; then
     echo "[+] Setting eth0 MTU to 1350..."
     sudo ip link set dev eth0 mtu 1350 || true
 fi
 
-# 3. Install basic APT prerequisites
+# 4. Install basic APT prerequisites
 echo "[+] Installing APT prerequisites (curl, git, xz-utils)..."
 sudo apt-get update -qq && sudo apt-get install -y -qq curl git xz-utils
 
-# 4. Ensure systemd and hostname are set in /etc/wsl.conf
+# 5. Ensure systemd and hostname are set in /etc/wsl.conf
 if ! grep -q "systemd=true" /etc/wsl.conf 2>/dev/null; then
     echo "[+] Enabling systemd in /etc/wsl.conf..."
     echo -e "[boot]\nsystemd=true" | sudo tee -a /etc/wsl.conf >/dev/null
@@ -55,13 +59,10 @@ if ! grep -q "hostname=" /etc/wsl.conf 2>/dev/null; then
     echo -e "[network]\nhostname=crimson-wsl" | sudo tee -a /etc/wsl.conf >/dev/null
 fi
 
-# 5. Check if Nix is installed; if not, run Determinate Nix installer
+# 6. Check if Nix is installed; if not, run Determinate Nix installer
 if ! command -v nix >/dev/null 2>&1; then
     echo "[+] Installing Nix via Determinate Systems Installer..."
-    curl -sSL --http1.1 --retry 5 https://install.determinate.systems/nix/tag/v3.21.8/nix-installer-x86_64-linux -o /tmp/nix-installer
-    chmod +x /tmp/nix-installer
-    /tmp/nix-installer install linux --no-confirm
-    rm -f /tmp/nix-installer
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
     
     if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
         source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
