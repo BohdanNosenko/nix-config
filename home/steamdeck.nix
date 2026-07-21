@@ -14,20 +14,4 @@
   xdg.configFile = {
     "topgrade.toml".source = ../config/steamdeck/topgrade.toml;
   };
-
-  # --- NEOVIM WRAPPER ---
-  programs.neovim = {
-    enable = true;
-    extraPackages = with pkgs; [
-      gcc
-      gnumake
-      nodejs
-      unzip
-      cargo
-      rustc
-      nil
-      pyright
-      ruff
-    ];
-  };
 }

@@ -57,6 +57,23 @@
     };
   };
 
+  # --- NEOVIM INTEGRATION WITH COMPILERS ---
+  programs.neovim = {
+    enable = true;
+    extraPackages = with pkgs; [
+      gcc
+      gnumake
+      nodejs
+      unzip
+      cargo
+      rustc
+      nil
+      pyright
+      ruff
+    ];
+  };
+
+  # --- STARSHIP PROMPT ---
   programs.starship = {
     enable = true;
     enableFishIntegration = true;

@@ -13,6 +13,4 @@
   xdg.configFile = {
     "topgrade.toml".source = ../config/debian-wsl/topgrade.toml;
   };
-
-  programs.neovim.enable = true;
 }
