@@ -75,7 +75,7 @@ fi
 sudo rm -rf /root/.cache/nix "$HOME/.cache/nix" /nix/var/nix/binary-cache-v* 2>/dev/null || true
 
 # 9. Run Home Manager bootstrap with fallback & network throttling
-echo "[+] Building and activating Home Manager WSL profile (#wsl)..."
-nix run --fallback --option max-substitution-jobs 2 github:nix-community/home-manager -- switch --flake "$REPO_DIR#wsl"
+echo "[+] Building and activating Home Manager WSL profile (#sart)..."
+nix run --fallback --option max-substitution-jobs 2 github:nix-community/home-manager -- switch --flake "$REPO_DIR#sart"
 
 echo "[+] WSL Bootstrap complete! Run 'exec fish' to enter your shell."

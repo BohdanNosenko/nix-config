@@ -8,7 +8,7 @@ A modular, reproducible Home Manager and Nix Flake repository configured for Ste
 
 ```
 ~/.config/home-manager/
-├── flake.nix             # Multi-host Flake entry point (deck, wsl profiles)
+├── flake.nix             # Multi-host Flake entry point (deck, sart profiles)
 ├── flake.lock            # Dependency lockfile
 ├── README.md             # Repository documentation
 ├── home/
