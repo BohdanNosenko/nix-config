@@ -35,6 +35,7 @@
     pkgs.ripgrep
     pkgs.starship
     pkgs.topgrade
+    pkgs.tmux
     pkgs.nerd-fonts.jetbrains-mono
 
     # Custom Google Antigravity CLI shared across all machines
