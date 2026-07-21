@@ -28,21 +28,16 @@ echo -e "http1.1\ntlsv1.2" | tee ~/.curlrc >/dev/null
 # 2. Configure /etc/nix/nix.custom.conf for maximum network resilience with large files
 echo "[+] Configuring /etc/nix/nix.custom.conf for WSL stability..."
 sudo mkdir -p /etc/nix
-if ! grep -q "download-attempts" /etc/nix/nix.custom.conf 2>/dev/null; then
-    cat <<'EOF' | sudo tee -a /etc/nix/nix.custom.conf >/dev/null
+CURRENT_USER=$(whoami)
+
+cat <<EOF | sudo tee /etc/nix/nix.custom.conf >/dev/null
 http2 = false
 download-attempts = 15
 connect-timeout = 120
 stalled-download-timeout = 600
 max-substitution-jobs = 2
+trusted-users = root $CURRENT_USER
 EOF
-fi
-
-# Add current user to trusted-users if missing
-CURRENT_USER=$(whoami)
-if ! grep -q "trusted-users" /etc/nix/nix.custom.conf 2>/dev/null; then
-    echo "trusted-users = root $CURRENT_USER" | sudo tee -a /etc/nix/nix.custom.conf >/dev/null
-fi
 
 # 3. Fix WSL2 MTU network packet drops and optimize TCP socket buffers
 if ip link show eth0 >/dev/null 2>&1; then
@@ -96,13 +91,14 @@ fi
 # 9. Clear any corrupted partial caches
 sudo rm -rf /root/.cache/nix "$HOME/.cache/nix" /nix/var/nix/binary-cache-v* 2>/dev/null || true
 
-# 10. Run Home Manager bootstrap with fallback & network throttling
+# 10. Run Home Manager bootstrap with fallback & automatic dotfile backup
 echo "[+] Building and activating Home Manager WSL profile (#wsl)..."
-nix run --fallback --option max-substitution-jobs 2 github:nix-community/home-manager -- switch --flake "$REPO_DIR#wsl" </dev/null
+export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
+nix run --fallback --option max-substitution-jobs 2 github:nix-community/home-manager -- switch -b backup --flake "$REPO_DIR#wsl" </dev/null
 
 # 11. Register Fish in /etc/shells and set as default login shell
-if command -v fish >/dev/null 2>&1; then
-    FISH_BIN=$(command -v fish)
+if command -v fish >/dev/null 2>&1 || [ -x "$HOME/.nix-profile/bin/fish" ]; then
+    FISH_BIN=$(command -v fish 2>/dev/null || echo "$HOME/.nix-profile/bin/fish")
     echo "[+] Registering Fish in /etc/shells and setting default login shell..."
     if ! grep -q "$FISH_BIN" /etc/shells 2>/dev/null; then
         echo "$FISH_BIN" | sudo tee -a /etc/shells >/dev/null
@@ -111,7 +107,13 @@ if command -v fish >/dev/null 2>&1; then
     sudo chsh -s "$FISH_BIN" "$CURRENT_USER" || true
 fi
 
-# 12. Ensure correct user permissions on config, local, and cache directories
+# 12. Auto-install Tmux Plugin Manager (TPM) if missing
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+    echo "[+] Installing Tmux Plugin Manager (TPM)..."
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" </dev/null || true
+fi
+
+# 13. Ensure correct user permissions on config, local, and cache directories
 echo "[+] Restoring home directory permissions for $CURRENT_USER..."
 sudo chown -R "$CURRENT_USER:$CURRENT_USER" "$HOME/.config" "$HOME/.local" "$HOME/.cache" 2>/dev/null || true
 
