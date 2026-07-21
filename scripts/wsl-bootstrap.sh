@@ -45,8 +45,8 @@ if ip link show eth0 >/dev/null 2>&1; then
 fi
 
 # 4. Install basic APT prerequisites
-echo "[+] Installing APT prerequisites (curl, git, xz-utils)..."
-sudo apt-get update -qq && sudo apt-get install -y -qq curl git xz-utils
+echo "[+] Installing APT prerequisites (curl, git, xz-utils, wget)..."
+sudo apt-get update -qq && sudo apt-get install -y -qq curl git xz-utils wget
 
 # 5. Ensure systemd and hostname are set in /etc/wsl.conf
 if ! grep -q "systemd=true" /etc/wsl.conf 2>/dev/null; then
@@ -59,12 +59,14 @@ if ! grep -q "hostname=" /etc/wsl.conf 2>/dev/null; then
     echo -e "[network]\nhostname=crimson-wsl" | sudo tee -a /etc/wsl.conf >/dev/null
 fi
 
-# 6. Check if Nix is installed; if not, run Determinate Nix installer
+# 6. Check if Nix is installed; if not, download nix-installer binary directly using wget/curl
 if ! command -v nix >/dev/null 2>&1; then
-    echo "[+] Installing Nix via Determinate Systems Installer..."
+    echo "[+] Installing Nix via Determinate Systems Installer binary..."
+    wget -q --tries=5 --timeout=30 https://install.determinate.systems/nix/tag/v3.21.8/nix-installer-x86_64-linux -O /tmp/nix-installer || \
     curl -sSL --tlsv1.2 --http1.1 --retry 5 https://install.determinate.systems/nix/tag/v3.21.8/nix-installer-x86_64-linux -o /tmp/nix-installer
+    
     chmod +x /tmp/nix-installer
-    /tmp/nix-installer install linux --no-confirm
+    sudo /tmp/nix-installer install linux --no-confirm
     rm -f /tmp/nix-installer
     
     if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
@@ -72,21 +74,21 @@ if ! command -v nix >/dev/null 2>&1; then
     fi
 fi
 
-# 6. Ensure nix-daemon is active
+# 7. Ensure nix-daemon is active
 echo "[+] Restarting nix-daemon service..."
 sudo systemctl restart nix-daemon || true
 
-# 7. Clone or update repository in ~/.config/home-manager
+# 8. Clone or update repository in ~/.config/home-manager
 REPO_DIR="$HOME/.config/home-manager"
 if [ ! -d "$REPO_DIR/.git" ]; then
     echo "[+] Cloning nix-config repository..."
     git clone https://github.com/BohdanNosenko/nix-config.git "$REPO_DIR"
 fi
 
-# 8. Clear any corrupted partial caches
+# 9. Clear any corrupted partial caches
 sudo rm -rf /root/.cache/nix "$HOME/.cache/nix" /nix/var/nix/binary-cache-v* 2>/dev/null || true
 
-# 9. Run Home Manager bootstrap with fallback & network throttling
+# 10. Run Home Manager bootstrap with fallback & network throttling
 echo "[+] Building and activating Home Manager WSL profile (#wsl)..."
 nix run --fallback --option max-substitution-jobs 2 github:nix-community/home-manager -- switch --flake "$REPO_DIR#wsl"
 
