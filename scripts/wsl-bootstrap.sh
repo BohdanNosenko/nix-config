@@ -111,4 +111,8 @@ if command -v fish >/dev/null 2>&1; then
     sudo chsh -s "$FISH_BIN" "$CURRENT_USER" || true
 fi
 
+# 12. Ensure correct user permissions on config, local, and cache directories
+echo "[+] Restoring home directory permissions for $CURRENT_USER..."
+sudo chown -R "$CURRENT_USER:$CURRENT_USER" "$HOME/.config" "$HOME/.local" "$HOME/.cache" 2>/dev/null || true
+
 echo "[+] WSL Bootstrap complete! Restart WSL (wsl.exe --shutdown in PowerShell) to activate your crimson-wsl hostname and Fish shell."
