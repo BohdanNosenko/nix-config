@@ -1,11 +1,6 @@
 {
   description = "Modular Multi-Host Declarative Home Configuration";
 
-  # Nix configuration parameters applied during flake commands
-  nixConfig = {
-    extra-substituters = [ "https://nix-community.cachix.org" ];
-    extra-trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
-  };
 
   inputs = {
     # Pin to the unstable Nixpkgs rolling release
