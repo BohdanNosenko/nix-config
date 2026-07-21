@@ -1,5 +1,5 @@
 {
-  description = "Bleeding-Edge Declarative Home Configuration";
+  description = "Modular Multi-Host Declarative Home Configuration";
 
   # Nix configuration parameters applied during flake commands
   nixConfig = {
@@ -24,7 +24,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, antigravity-nix, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -34,15 +34,25 @@
 
       # Define configurations for different targets
       homeConfigurations = {
-        # Profile for Steam Deck
+        # Profile 1: Steam Deck
         "deck" = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
-          modules = [ ./home.nix ];
-          # Pass username and homeDirectory down as arguments to home.nix
+          modules = [ ./home/steamdeck.nix ];
           extraSpecialArgs = { 
             inherit inputs;
             username = "deck";
             homeDirectory = "/home/deck";
+          };
+        };
+
+        # Profile 2: Debian WSL
+        "wsl" = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          modules = [ ./home/debian-wsl.nix ];
+          extraSpecialArgs = { 
+            inherit inputs;
+            username = "sart";
+            homeDirectory = "/home/sart";
           };
         };
       };
