@@ -62,11 +62,11 @@ if ! grep -q "hostname=" /etc/wsl.conf 2>/dev/null; then
     echo -e "[network]\nhostname=crimson-wsl" | sudo tee -a /etc/wsl.conf >/dev/null
 fi
 
-# 6. Check if Nix is installed; if not, download nix-installer binary directly using wget/curl
+# 6. Check if Nix is installed; if not, download nix-installer binary directly from GitHub Releases
 if ! command -v nix >/dev/null 2>&1; then
     echo "[+] Installing Nix via Determinate Systems Installer binary..."
-    wget -q --tries=5 --timeout=30 https://install.determinate.systems/nix/tag/v3.21.8/nix-installer-x86_64-linux -O /tmp/nix-installer </dev/null || \
-    curl -sSL --tlsv1.2 --http1.1 --retry 5 https://install.determinate.systems/nix/tag/v3.21.8/nix-installer-x86_64-linux -o /tmp/nix-installer </dev/null
+    wget -q --tries=5 --timeout=30 https://github.com/DeterminateSystems/nix-installer/releases/latest/download/nix-installer-x86_64-linux -O /tmp/nix-installer </dev/null || \
+    curl -sSL --tlsv1.2 --http1.1 --retry 5 https://github.com/DeterminateSystems/nix-installer/releases/latest/download/nix-installer-x86_64-linux -o /tmp/nix-installer </dev/null
     
     chmod +x /tmp/nix-installer
     sudo /tmp/nix-installer install linux --no-confirm </dev/null
