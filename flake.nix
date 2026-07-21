@@ -46,13 +46,13 @@
         };
 
         # Profile 2: Debian WSL
-        "sart" = home-manager.lib.homeManagerConfiguration {
+        "wsl" = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           modules = [ ./home/debian-wsl.nix ];
           extraSpecialArgs = { 
             inherit inputs;
-            username = "sart";
-            homeDirectory = "/home/sart";
+            username = "wsl";
+            homeDirectory = "/home/wsl";
           };
         };
       };
