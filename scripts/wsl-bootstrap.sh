@@ -58,7 +58,10 @@ fi
 # 5. Check if Nix is installed; if not, run Determinate Nix installer
 if ! command -v nix >/dev/null 2>&1; then
     echo "[+] Installing Nix via Determinate Systems Installer..."
-    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+    curl -sSL --http1.1 --retry 5 https://install.determinate.systems/nix/tag/v3.21.8/nix-installer-x86_64-linux -o /tmp/nix-installer
+    chmod +x /tmp/nix-installer
+    /tmp/nix-installer install linux --no-confirm
+    rm -f /tmp/nix-installer
     
     if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
         source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
