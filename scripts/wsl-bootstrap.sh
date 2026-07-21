@@ -25,11 +25,17 @@ echo "[+] Starting Automated WSL Nix & Home Manager Bootstrap..."
 echo -e "http1.1\ntlsv1.2" | sudo tee /root/.curlrc >/dev/null
 echo -e "http1.1\ntlsv1.2" | tee ~/.curlrc >/dev/null
 
-# 2. Disable HTTP/2 in Nix daemon to prevent SSL socket drops on WSL
+# 2. Configure /etc/nix/nix.custom.conf for maximum network resilience with large files
 echo "[+] Configuring /etc/nix/nix.custom.conf for WSL stability..."
 sudo mkdir -p /etc/nix
-if ! grep -q "http2 = false" /etc/nix/nix.custom.conf 2>/dev/null; then
-    echo "http2 = false" | sudo tee -a /etc/nix/nix.custom.conf >/dev/null
+if ! grep -q "download-attempts" /etc/nix/nix.custom.conf 2>/dev/null; then
+    cat <<'EOF' | sudo tee -a /etc/nix/nix.custom.conf >/dev/null
+http2 = false
+download-attempts = 15
+connect-timeout = 120
+stalled-download-timeout = 600
+max-substitution-jobs = 2
+EOF
 fi
 
 # Add current user to trusted-users if missing
@@ -38,10 +44,12 @@ if ! grep -q "trusted-users" /etc/nix/nix.custom.conf 2>/dev/null; then
     echo "trusted-users = root $CURRENT_USER" | sudo tee -a /etc/nix/nix.custom.conf >/dev/null
 fi
 
-# 3. Fix WSL2 MTU network packet drops if eth0 exists
+# 3. Fix WSL2 MTU network packet drops and optimize TCP socket buffers
 if ip link show eth0 >/dev/null 2>&1; then
-    echo "[+] Setting eth0 MTU to 1350..."
+    echo "[+] Setting eth0 MTU to 1350 and optimizing TCP buffers..."
     sudo ip link set dev eth0 mtu 1350 || true
+    sudo sysctl -w net.ipv4.tcp_rmem="4096 87380 67108864" >/dev/null 2>&1 || true
+    sudo sysctl -w net.core.rmem_max=67108864 >/dev/null 2>&1 || true
 fi
 
 # 4. Install basic APT prerequisites
