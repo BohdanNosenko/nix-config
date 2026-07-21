@@ -21,9 +21,9 @@ set -euo pipefail
 
 echo "[+] Starting Automated WSL Nix & Home Manager Bootstrap..."
 
-# 1. Configure system curl to always use HTTP/1.1 on WSL to prevent SSL socket drops
-echo "http1.1" | sudo tee /root/.curlrc >/dev/null
-echo "http1.1" | tee ~/.curlrc >/dev/null
+# 1. Configure system curl to always use HTTP/1.1 and TLS 1.2 on WSL to prevent OpenSSL 3.5 record drops
+echo -e "http1.1\ntlsv1.2" | sudo tee /root/.curlrc >/dev/null
+echo -e "http1.1\ntlsv1.2" | tee ~/.curlrc >/dev/null
 
 # 2. Disable HTTP/2 in Nix daemon to prevent SSL socket drops on WSL
 echo "[+] Configuring /etc/nix/nix.custom.conf for WSL stability..."
@@ -62,7 +62,10 @@ fi
 # 6. Check if Nix is installed; if not, run Determinate Nix installer
 if ! command -v nix >/dev/null 2>&1; then
     echo "[+] Installing Nix via Determinate Systems Installer..."
-    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
+    curl -sSL --tlsv1.2 --http1.1 --retry 5 https://install.determinate.systems/nix/tag/v3.21.8/nix-installer-x86_64-linux -o /tmp/nix-installer
+    chmod +x /tmp/nix-installer
+    /tmp/nix-installer install linux --no-confirm
+    rm -f /tmp/nix-installer
     
     if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
         source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
