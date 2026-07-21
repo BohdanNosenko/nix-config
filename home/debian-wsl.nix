@@ -6,8 +6,7 @@
 
   # --- WSL SPECIFIC PACKAGES ---
   home.packages = [
-    pkgs.python3
-    pkgs.nodejs_22
+    # Add machine-specific CLI tools here as needed
   ];
 
   # --- WSL SPECIFIC DOTFILES ---
