@@ -64,7 +64,7 @@
     shellAliases = {
       ls = "eza --icons --group-directories-first --git";
       fetch = "fastfetch";
-      tmux = "tmux -S ${homeDirectory}/.tmux.sock";
+      tmux = "tmux -S ${homeDirectory}/.tmux.sock -f ${homeDirectory}/.tmux.conf";
     };
   };
 
