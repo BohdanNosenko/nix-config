@@ -56,6 +56,7 @@
   xdg.configFile = {
     "nvim".source = ../config/common/nvim;
     "tmux/tmux.conf".source = ../config/common/tmux/tmux.conf;
+    "markdownlint/config.json".source = ../config/common/markdownlint/config.json;
   };
 
   # --- SHARED SHELL INTEGRATION ---
