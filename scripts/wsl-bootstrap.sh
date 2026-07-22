@@ -25,7 +25,7 @@ echo "[+] Starting Automated WSL Nix & Home Manager Bootstrap..."
 echo -e "http1.1\ntlsv1.2" | sudo tee /root/.curlrc >/dev/null
 echo -e "http1.1\ntlsv1.2" | tee ~/.curlrc >/dev/null
 
-# 2. Configure /etc/nix/nix.custom.conf for maximum network resilience with large files
+# 2. Configure /etc/nix/nix.custom.conf for maximum network resilience and fast retries
 echo "[+] Configuring /etc/nix/nix.custom.conf for WSL stability..."
 sudo mkdir -p /etc/nix
 CURRENT_USER=$(whoami)
@@ -33,8 +33,9 @@ CURRENT_USER=$(whoami)
 cat <<EOF | sudo tee /etc/nix/nix.custom.conf >/dev/null
 http2 = false
 download-attempts = 15
-connect-timeout = 120
-stalled-download-timeout = 600
+connect-timeout = 30
+stalled-download-timeout = 60
+download-speed-threshold = 1000
 max-substitution-jobs = 2
 trusted-users = root $CURRENT_USER
 EOF
