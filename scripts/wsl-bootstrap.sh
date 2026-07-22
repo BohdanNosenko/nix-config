@@ -21,9 +21,10 @@ set -euo pipefail
 
 echo "[+] Starting Automated WSL Nix & Home Manager Bootstrap..."
 
-# 1. Configure system curl and git to always use HTTP/1.1 and TLS 1.2 on WSL to prevent OpenSSL 3.5 record drops
+# 1. Configure system curl, git, and npm to always use HTTP/1.1 and stable endpoints on WSL to prevent OpenSSL 3.5 record drops
 echo -e "http1.1\ntlsv1.2" | sudo tee /root/.curlrc >/dev/null
 echo -e "http1.1\ntlsv1.2" | tee ~/.curlrc >/dev/null
+echo -e "registry=http://registry.npmjs.org/\nstrict-ssl=false" | tee ~/.npmrc >/dev/null
 
 git config --global http.version HTTP/1.1 2>/dev/null || true
 git config --global http.sslVersion tlsv1.2 2>/dev/null || true

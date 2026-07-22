@@ -27,6 +27,10 @@
 
   # --- DOTFILES LINKING ---
   home.file.".tmux.conf".source = ../config/common/tmux/tmux.conf;
+  home.file.".npmrc".text = ''
+    registry=http://registry.npmjs.org/
+    strict-ssl=false
+  '';
 
   # --- SHARED USER PACKAGES ---
   home.packages = [
