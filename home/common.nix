@@ -48,6 +48,7 @@
   # --- SHARED DOTFILES SYMLINKS ---
   xdg.configFile = {
     "nvim".source = ../config/common/nvim;
+    "tmux/tmux.conf".source = ../config/common/tmux/tmux.conf;
   };
 
   # --- SHARED SHELL INTEGRATION ---

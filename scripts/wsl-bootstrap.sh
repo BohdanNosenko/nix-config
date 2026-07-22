@@ -21,9 +21,13 @@ set -euo pipefail
 
 echo "[+] Starting Automated WSL Nix & Home Manager Bootstrap..."
 
-# 1. Configure system curl to always use HTTP/1.1 and TLS 1.2 on WSL to prevent OpenSSL 3.5 record drops
+# 1. Configure system curl and git to always use HTTP/1.1 and TLS 1.2 on WSL to prevent OpenSSL 3.5 record drops
 echo -e "http1.1\ntlsv1.2" | sudo tee /root/.curlrc >/dev/null
 echo -e "http1.1\ntlsv1.2" | tee ~/.curlrc >/dev/null
+
+git config --global http.version HTTP/1.1 2>/dev/null || true
+git config --global http.sslVersion tlsv1.2 2>/dev/null || true
+git config --global http.postBuffer 524288000 2>/dev/null || true
 
 # 2. Configure /etc/nix/nix.custom.conf for maximum network resilience and fast retries
 echo "[+] Configuring /etc/nix/nix.custom.conf for WSL stability..."
