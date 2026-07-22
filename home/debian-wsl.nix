@@ -6,7 +6,7 @@
 
   # --- WSL SPECIFIC PACKAGES ---
   home.packages = [
-    # Add machine-specific CLI tools here as needed
+    pkgs.steamcmd
   ];
 
   # --- WSL SPECIFIC DOTFILES ---
