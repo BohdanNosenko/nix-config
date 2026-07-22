@@ -113,7 +113,11 @@ if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" </dev/null || true
 fi
 
-# 13. Ensure correct user permissions on config, local, and cache directories
+# 13. Clean Neovim lazy plugin cache to ensure fresh plugin checkout
+echo "[+] Preparing Neovim plugin directory..."
+rm -rf "$HOME/.local/share/nvim/lazy" 2>/dev/null || true
+
+# 14. Ensure correct user permissions on config, local, and cache directories
 echo "[+] Restoring home directory permissions for $CURRENT_USER..."
 sudo chown -R "$CURRENT_USER:$CURRENT_USER" "$HOME/.config" "$HOME/.local" "$HOME/.cache" 2>/dev/null || true
 
