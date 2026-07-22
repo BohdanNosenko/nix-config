@@ -35,7 +35,6 @@ http2 = false
 download-attempts = 15
 connect-timeout = 30
 stalled-download-timeout = 60
-download-speed-threshold = 1000
 max-substitution-jobs = 2
 trusted-users = root $CURRENT_USER
 EOF
