@@ -39,11 +39,18 @@
     pkgs.starship
     pkgs.topgrade
     pkgs.tmux
+    pkgs.difftastic
     pkgs.nerd-fonts.jetbrains-mono
 
     # Custom Google Antigravity CLI shared across all machines
     inputs.antigravity-nix.packages.x86_64-linux.google-antigravity-cli
   ];
+
+  # --- AUTOMATIC DEV ENVIRONMENT CACHING ---
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
 
   # --- SHARED DOTFILES SYMLINKS ---
   xdg.configFile = {
