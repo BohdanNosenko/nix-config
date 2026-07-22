@@ -21,37 +21,17 @@ set -euo pipefail
 
 echo "[+] Starting Automated WSL Nix & Home Manager Bootstrap..."
 
-# 1. Configure system curl, git, and npm to always use HTTP/1.1 and stable endpoints on WSL to prevent OpenSSL 3.5 record drops
-echo -e "http1.1\ntlsv1.2" | sudo tee /root/.curlrc >/dev/null
-echo -e "http1.1\ntlsv1.2" | tee ~/.curlrc >/dev/null
-echo -e "registry=http://registry.npmjs.org/\nstrict-ssl=false" | tee ~/.npmrc >/dev/null
 
-git config --global http.version HTTP/1.1 2>/dev/null || true
-git config --global http.sslVersion tlsv1.2 2>/dev/null || true
-git config --global http.postBuffer 524288000 2>/dev/null || true
-
-# 2. Configure /etc/nix/nix.custom.conf for maximum network resilience and fast retries
-echo "[+] Configuring /etc/nix/nix.custom.conf for WSL stability..."
+# 1. Configure /etc/nix/nix.custom.conf to allow the current user to control the nix daemon
+echo "[+] Configuring /etc/nix/nix.custom.conf with trusted-users..."
 sudo mkdir -p /etc/nix
 CURRENT_USER=$(whoami)
 
 cat <<EOF | sudo tee /etc/nix/nix.custom.conf >/dev/null
-http2 = false
-http-connections = 1
-download-attempts = 15
-connect-timeout = 30
-stalled-download-timeout = 60
-max-substitution-jobs = 1
 trusted-users = root $CURRENT_USER
 EOF
 
-# 3. Fix WSL2 MTU network packet drops and optimize TCP socket buffers
-if ip link show eth0 >/dev/null 2>&1; then
-    echo "[+] Setting eth0 MTU to 1350 and optimizing TCP buffers..."
-    sudo ip link set dev eth0 mtu 1350 || true
-    sudo sysctl -w net.ipv4.tcp_rmem="4096 87380 67108864" >/dev/null 2>&1 || true
-    sudo sysctl -w net.core.rmem_max=67108864 >/dev/null 2>&1 || true
-fi
+
 
 # 4. Install basic APT prerequisites
 echo "[+] Installing APT prerequisites (curl, git, xz-utils, wget)..."
