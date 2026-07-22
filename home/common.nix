@@ -68,6 +68,11 @@
     };
   };
 
+  # --- SESSION VARIABLES ---
+  home.sessionVariables = {
+    NODE_OPTIONS = "--tls-min-v1.2";
+  };
+
   # --- NEOVIM INTEGRATION WITH COMPILERS ---
   programs.neovim = {
     enable = true;
@@ -75,6 +80,7 @@
       gcc
       gnumake
       nodejs
+      python3
       unzip
       cargo
       rustc
