@@ -36,10 +36,11 @@ CURRENT_USER=$(whoami)
 
 cat <<EOF | sudo tee /etc/nix/nix.custom.conf >/dev/null
 http2 = false
+http-connections = 1
 download-attempts = 15
 connect-timeout = 30
 stalled-download-timeout = 60
-max-substitution-jobs = 2
+max-substitution-jobs = 1
 trusted-users = root $CURRENT_USER
 EOF
 
